@@ -1,25 +1,28 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const posts = [
-    {
-      title: "Post 1",
-      content: "This is a preview of the first post...",
-      link: "posts/post1.html",
-    },
-    {
-      title: "Post 2",
-      content: "This is a preview of the second post...",
-      link: "posts/post2.html",
-    },
-  ];
+  // Fetch the list of posts dynamically
+  fetch("/posts/posts.json")
+    .then((response) => response.json())
+    .then((posts) => {
+      const postsContainer = document.getElementById("posts");
 
-  const postsContainer = document.getElementById("posts");
-  posts.slice(0, 2).forEach((post) => {
-    const postElement = document.createElement("div");
-    postElement.classList.add("post-preview");
-    postElement.innerHTML = `
-            <h2><a href="${post.link}">${post.title}</a></h2>
-            <p>${post.content}</p>
-        `;
-    postsContainer.appendChild(postElement);
-  });
+      // Highlighted change: Display the 3 most recent posts
+      posts.slice(0, 3).forEach((postUrl) => {
+        fetch(postUrl)
+          .then((response) => response.text())
+          .then((data) => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(data, "text/html");
+            const title = doc.querySelector("h1").innerText;
+            const content = doc.querySelector("p").innerText;
+
+            const postElement = document.createElement("div");
+            postElement.classList.add("post-preview");
+            postElement.innerHTML = `
+                          <h2><a href="${postUrl}">${title}</a></h2>
+                          <p>${content}</p>
+                      `;
+            postsContainer.appendChild(postElement);
+          });
+      });
+    });
 });
