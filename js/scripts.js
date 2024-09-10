@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   // Fetch the list of posts dynamically
-  fetch("../posts/posts.json")
+  fetch("/posts/posts.json")
     .then((response) => response.json())
     .then((posts) => {
       const postsContainer = document.getElementById("posts");
