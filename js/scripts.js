@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const postsContainer = document.getElementById("posts");
 
       // Highlighted change: Display the 3 most recent posts
-      posts.slice(0, 3).forEach((postUrl) => {
+      const fetchPromises = posts.slice(0, 3).map((postUrl) =>
         fetch(postUrl)
           .then((response) => response.text())
           .then((data) => {
@@ -15,14 +15,20 @@ document.addEventListener("DOMContentLoaded", () => {
             const title = doc.querySelector("h1").innerText;
             const content = doc.querySelector("p").innerText;
 
-            const postElement = document.createElement("div");
-            postElement.classList.add("post-preview");
-            postElement.innerHTML = `
-                          <h2><a href="${postUrl}">${title}</a></h2>
-                          <p>${content}</p>
-                      `;
-            postsContainer.appendChild(postElement);
-          });
+            return { postUrl, title, content };
+          })
+      );
+
+      Promise.all(fetchPromises).then((postsData) => {
+        postsData.forEach(({ postUrl, title, content }) => {
+          const postElement = document.createElement("div");
+          postElement.classList.add("post-preview");
+          postElement.innerHTML = `
+            <h2><a href="${postUrl}">${title}</a></h2>
+            <p>${content}</p>
+          `;
+          postsContainer.appendChild(postElement);
+        });
       });
     });
 });
